@@ -25,11 +25,15 @@ def unit_tests():
 
 
 def integration_tests():
-    from infrastructure_tests import HTTPDailyRepositoryTest
+    import inspect
+    import infrastructure_tests
+    def only_infrastructure_tests(class_tuple):
+      return "infrastructure_tests" == class_tuple[1].__module__
 
-    return unittest.TestSuite([
-        __load_test(HTTPDailyRepositoryTest)
-    ])
+    classnames = inspect.getmembers(infrastructure_tests, inspect.isclass)
+    classes = map(lambda class_tuple: class_tuple[1], filter(only_infrastructure_tests, classnames))
+
+    return unittest.TestSuite(map(lambda classname: __load_test(classname), classes))
 
 
 def __load_test(test_case_class):
